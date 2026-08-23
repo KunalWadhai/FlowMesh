@@ -1,0 +1,27 @@
+{
+  "name": "flowmesh",
+  "version": "1.0.0",
+  "description": "AI-Powered Distributed Workflow Orchestration Engine",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=apps/api\" \"npm run dev --workspace=apps/web\"",
+    "build": "npm run build --workspace=apps/api && npm run build --workspace=apps/web",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose up --build",
+    "db:migrate": "npm run prisma:migrate --workspace=apps/api",
+    "db:generate": "npm run prisma:generate --workspace=apps/api",
+    "db:studio": "npm run prisma:studio --workspace=apps/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}

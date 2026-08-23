@@ -1,0 +1,195 @@
+// FlowMesh Prisma Schema
+// Multi-tenant distributed workflow orchestration platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth & Multi-tenancy ───────────────────────────────────────────────────
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String    @map("password_hash")
+  avatarUrl    String?   @map("avatar_url")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  workspaceMemberships WorkspaceMember[]
+  refreshTokens        RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @map("user_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  plan        Plan     @default(FREE)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  members   WorkspaceMember[]
+  workflows Workflow[]
+  apiKeys   ApiKey[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  workspaceId String          @map("workspace_id")
+  role        WorkspaceRole   @default(MEMBER)
+  joinedAt    DateTime        @default(now()) @map("joined_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@map("workspace_members")
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String
+  keyHash     String    @unique @map("key_hash")
+  keyPrefix   String    @map("key_prefix")
+  workspaceId String    @map("workspace_id")
+  lastUsedAt  DateTime? @map("last_used_at")
+  expiresAt   DateTime? @map("expires_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
+
+// ─── Workflows (DAG Definition) ─────────────────────────────────────────────
+
+model Workflow {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  tags        String[]       @default([])
+  workspaceId String         @map("workspace_id")
+  status      WorkflowStatus @default(DRAFT)
+  definition  Json           // Full DAG: { nodes: [], edges: [] }
+  schedule    String?        // Cron expression (nullable)
+  isActive    Boolean        @default(false) @map("is_active")
+  version     Int            @default(1)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  workspace  Workspace   @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  executions Execution[]
+
+  @@index([workspaceId])
+  @@index([status])
+  @@map("workflows")
+}
+
+// ─── Executions ─────────────────────────────────────────────────────────────
+
+model Execution {
+  id          String          @id @default(cuid())
+  workflowId  String          @map("workflow_id")
+  status      ExecutionStatus @default(QUEUED)
+  trigger     TriggerType     @default(MANUAL)
+  inputData   Json?           @map("input_data")
+  outputData  Json?           @map("output_data")
+  error       String?
+  startedAt   DateTime?       @map("started_at")
+  completedAt DateTime?       @map("completed_at")
+  durationMs  Int?            @map("duration_ms")
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  workflow     Workflow         @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  stepLogs     ExecutionStepLog[]
+
+  @@index([workflowId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("executions")
+}
+
+model ExecutionStepLog {
+  id          String          @id @default(cuid())
+  executionId String          @map("execution_id")
+  nodeId      String          @map("node_id")
+  nodeName    String          @map("node_name")
+  nodeType    String          @map("node_type")
+  status      ExecutionStatus @default(RUNNING)
+  inputData   Json?           @map("input_data")
+  outputData  Json?           @map("output_data")
+  error       String?
+  logs        String[]        @default([])
+  startedAt   DateTime        @default(now()) @map("started_at")
+  completedAt DateTime?       @map("completed_at")
+  durationMs  Int?            @map("duration_ms")
+  retryCount  Int             @default(0) @map("retry_count")
+
+  execution Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+
+  @@index([executionId])
+  @@index([nodeId])
+  @@map("execution_step_logs")
+}
+
+// ─── Enums ──────────────────────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum WorkflowStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum ExecutionStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  SKIPPED
+}
+
+enum TriggerType {
+  MANUAL
+  SCHEDULED
+  API
+  WEBHOOK
+  EVENT
+}

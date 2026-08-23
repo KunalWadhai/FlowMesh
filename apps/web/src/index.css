@@ -1,0 +1,259 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Design Tokens ────────────────────────────────────────────────────────── */
+:root {
+  /* Color Palette */
+  --color-bg: #060612;
+  --color-surface-0: #0b0b1f;
+  --color-surface-1: #10102a;
+  --color-surface-2: #161636;
+
+  --color-glass: rgba(255, 255, 255, 0.04);
+  --color-glass-hover: rgba(255, 255, 255, 0.07);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
+  --color-glass-border-hover: rgba(255, 255, 255, 0.15);
+
+  --color-primary: #6c63ff;
+  --color-primary-light: #8b85ff;
+  --color-primary-dark: #4f46e5;
+  --color-primary-glow: rgba(108, 99, 255, 0.25);
+
+  --color-accent: #00d9ff;
+  --color-accent-glow: rgba(0, 217, 255, 0.2);
+
+  --color-success: #00e5a0;
+  --color-success-glow: rgba(0, 229, 160, 0.2);
+  --color-warning: #ffb020;
+  --color-danger: #ff4d6d;
+  --color-danger-glow: rgba(255, 77, 109, 0.2);
+
+  --color-text-primary: rgba(255, 255, 255, 0.92);
+  --color-text-secondary: rgba(255, 255, 255, 0.55);
+  --color-text-muted: rgba(255, 255, 255, 0.3);
+
+  /* Blur */
+  --blur-sm: blur(8px);
+  --blur-md: blur(16px);
+  --blur-lg: blur(32px);
+
+  /* Motion */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+
+  /* Glow effects */
+  --glow-primary: 0 0 40px rgba(108, 99, 255, 0.3);
+  --glow-accent: 0 0 40px rgba(0, 217, 255, 0.25);
+  --glow-success: 0 0 30px rgba(0, 229, 160, 0.25);
+  --glow-danger: 0 0 30px rgba(255, 77, 109, 0.25);
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 8px 48px rgba(0, 0, 0, 0.6);
+}
+
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Selection ────────────────────────────────────────────────────────────── */
+::selection { background: rgba(108, 99, 255, 0.35); color: white; }
+
+/* ── Noise texture overlay ────────────────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ── Gradient background ──────────────────────────────────────────────────── */
+.bg-mesh {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(108, 99, 255, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0, 217, 255, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(6, 6, 18, 1) 100%),
+    var(--color-bg);
+}
+
+/* ── Glass Components ─────────────────────────────────────────────────────── */
+.glass {
+  background: var(--color-glass);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  border: 1px solid var(--color-glass-border);
+  transition: background var(--duration-normal) var(--ease-smooth),
+              border-color var(--duration-normal) var(--ease-smooth);
+}
+
+.glass:hover {
+  background: var(--color-glass-hover);
+  border-color: var(--color-glass-border-hover);
+}
+
+.glass-card {
+  @apply glass rounded-2xl;
+  box-shadow: var(--shadow-card);
+}
+
+.glass-elevated {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-elevated);
+}
+
+/* ── Glow Utilities ───────────────────────────────────────────────────────── */
+.glow-primary { box-shadow: var(--glow-primary); }
+.glow-accent { box-shadow: var(--glow-accent); }
+.glow-success { box-shadow: var(--glow-success); }
+.glow-danger { box-shadow: var(--glow-danger); }
+
+.text-glow-primary { text-shadow: 0 0 20px rgba(108, 99, 255, 0.7); }
+.text-glow-accent { text-shadow: 0 0 20px rgba(0, 217, 255, 0.7); }
+
+/* ── Gradient Text ────────────────────────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Node Types (ReactFlow) ───────────────────────────────────────────────── */
+.node-http_request  { --node-color: #6c63ff; }
+.node-transform     { --node-color: #00d9ff; }
+.node-delay         { --node-color: #ffb020; }
+.node-condition     { --node-color: #ff6b9d; }
+.node-ai_agent      { --node-color: #00e5a0; }
+.node-log           { --node-color: #8b85ff; }
+.node-merge         { --node-color: #ff9f43; }
+.node-split         { --node-color: #a29bfe; }
+
+/* ── ReactFlow overrides ──────────────────────────────────────────────────── */
+.react-flow__background { background-color: transparent !important; }
+.react-flow__pane { cursor: default !important; }
+
+.react-flow__edge-path {
+  stroke: rgba(108, 99, 255, 0.6) !important;
+  stroke-width: 2 !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--color-accent) !important;
+  filter: drop-shadow(0 0 6px var(--color-accent));
+}
+
+.react-flow__handle {
+  width: 10px !important;
+  height: 10px !important;
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  background: var(--color-surface-2) !important;
+  transition: all 0.2s ease !important;
+}
+
+.react-flow__handle:hover {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary-light) !important;
+  box-shadow: 0 0 12px var(--color-primary-glow) !important;
+}
+
+/* ── Animations ───────────────────────────────────────────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-slide-up { animation: slide-up 0.4s var(--ease-spring) both; }
+.animate-fade-in { animation: fade-in 0.3s ease both; }
+.animate-spin-slow { animation: spin-slow 3s linear infinite; }
+
+/* ── Status indicators ────────────────────────────────────────────────────── */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.status-dot.QUEUED    { background: rgba(255,255,255,0.3); }
+.status-dot.RUNNING   { background: var(--color-accent); animation: pulse-glow 1.5s infinite; }
+.status-dot.SUCCEEDED { background: var(--color-success); }
+.status-dot.FAILED    { background: var(--color-danger); }
+.status-dot.CANCELLED { background: rgba(255,255,255,0.2); }
+
+/* ── Input/Form overrides ─────────────────────────────────────────────────── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select {
+  background: var(--color-glass) !important;
+  border: 1px solid var(--color-glass-border) !important;
+  color: var(--color-text-primary) !important;
+  outline: none !important;
+  transition: border-color var(--duration-fast) ease !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 3px var(--color-primary-glow) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--color-text-muted) !important;
+}
