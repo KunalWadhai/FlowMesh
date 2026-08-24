@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Sparkles, Send, User, Bot, Loader2, Zap, GitBranch, AlertTriangle,
-  TrendingUp, Copy, Check, RefreshCw
+  TrendingUp, Copy, Check, ArrowRight, Globe, UserPlus, BarChart3, Webhook
 } from 'lucide-react';
 import api from '../lib/api';
 import { Button, Card, Badge } from '../components/ui';
@@ -19,10 +19,10 @@ interface Message {
 }
 
 const QUICK_PROMPTS = [
-  'Create a workflow that fetches weather data and sends an alert if it\'s raining',
-  'Build a pipeline that processes user signups: validate email, create account, send welcome email',
-  'Design a daily report workflow that pulls data from an API and uses AI to summarize it',
-  'Create a webhook handler that routes events to different processing branches',
+  { text: 'Create a workflow that fetches weather data and sends an alert if it\'s raining', icon: Globe, color: '#38bdf8' },
+  { text: 'Build a pipeline that processes user signups: validate email, create account, send welcome email', icon: UserPlus, color: '#10d9a8' },
+  { text: 'Design a daily report workflow that pulls data from an API and uses AI to summarize it', icon: BarChart3, color: '#a78bfa' },
+  { text: 'Create a webhook handler that routes events to different processing branches', icon: Webhook, color: '#fb923c' },
 ];
 
 export default function AIAssistantPage() {
@@ -113,18 +113,18 @@ export default function AIAssistantPage() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 glass flex-shrink-0">
+      <div className="flex h-14 items-center justify-between px-6 border-b border-white/10 bg-surface-0 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shadow-glow-primary">
+          <div className="w-9 h-9 rounded-full border border-primary-light/40 bg-gradient-to-br from-primary-light to-primary-dark flex items-center justify-center animate-pulse-glow">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <div>
             <h1 className="text-base font-semibold text-white/90">AI Assistant</h1>
-            <p className="text-xs text-white/35">Powered by Claude</p>
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11px] text-[#76b900]"><span className="h-1.5 w-1.5 rounded-full bg-[#76b900] animate-pulse" />Powered by NVIDIA AI</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 p-1 rounded-xl glass border border-white/8">
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-surface-2 border border-white/10">
           {([
             { key: 'chat', label: 'Chat', icon: Bot },
             { key: 'suggest', label: 'Generate', icon: GitBranch },
@@ -133,7 +133,7 @@ export default function AIAssistantPage() {
               key={key}
               onClick={() => setMode(key)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                mode === key ? 'bg-primary/20 text-primary-light' : 'text-white/40 hover:text-white/70'
+                mode === key ? 'bg-[#21263a] border border-white/10 text-white/85 shadow-sm' : 'border border-transparent text-white/40 hover:text-white/70'
               }`}
             >
               <Icon className="w-3.5 h-3.5" /> {label}
@@ -160,10 +160,10 @@ export default function AIAssistantPage() {
               )}
 
               <div className={`max-w-[75%] space-y-3 ${msg.role === 'user' ? 'items-end' : 'items-start'} flex flex-col`}>
-                <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                <div className={`rounded-[14px] px-4 py-3 text-sm leading-relaxed ${
                   msg.role === 'user'
-                    ? 'bg-primary/20 text-white/90 border border-primary/25 rounded-tr-sm'
-                    : 'glass border border-white/8 text-white/80 rounded-tl-sm'
+                    ? 'bg-primary/10 text-white/90 border border-primary/25 rounded-tr-sm'
+                    : 'bg-surface-1 border border-white/10 text-white/80 rounded-tl-sm'
                 }`}>
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
@@ -223,7 +223,7 @@ export default function AIAssistantPage() {
                   </div>
                 )}
 
-                <p className="text-xs text-white/20 px-1">
+                <p className="font-mono text-[11px] text-white/20 px-1">
                   {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
@@ -253,16 +253,20 @@ export default function AIAssistantPage() {
 
       {/* Quick Prompts */}
       {messages.length === 1 && (
-        <div className="px-6 pb-4">
-          <p className="text-xs text-white/30 mb-3 flex items-center gap-1.5"><Zap className="w-3 h-3" /> Quick start</p>
+        <div className="mx-auto w-full max-w-3xl px-6 pb-4">
+          <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.08em] text-white/35 mb-3 flex items-center gap-1.5"><Zap className="w-3 h-3" /> Quick start</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {QUICK_PROMPTS.map((p, i) => (
+            {QUICK_PROMPTS.map(({ text, icon: Icon, color }, i) => (
               <button
                 key={i}
-                onClick={() => sendMessage(p)}
-                className="text-left px-3 py-2.5 rounded-xl glass border border-white/5 hover:border-white/15 hover:bg-white/5 text-xs text-white/50 hover:text-white/80 transition-all"
+                role="button"
+                aria-label={`Start with: ${text}`}
+                onClick={() => sendMessage(text)}
+                className="group relative min-h-[76px] overflow-hidden rounded-[10px] border border-white/10 border-l-2 bg-surface-1 px-4 py-3 text-left text-xs text-white/60 transition-all hover:bg-surface-2 hover:text-white/85"
+                style={{ borderLeftColor: color }}
               >
-                {p}
+                <Icon className="mb-2 h-3.5 w-3.5" style={{ color }} />
+                <span className="block pr-5 leading-5">{text}</span><ArrowRight className="absolute bottom-3 right-3 h-3.5 w-3.5 text-white/35 opacity-0 transition-all group-hover:translate-x-0.5 group-hover:opacity-100" />
               </button>
             ))}
           </div>
@@ -270,8 +274,8 @@ export default function AIAssistantPage() {
       )}
 
       {/* Input */}
-      <div className="px-6 pb-6 flex-shrink-0">
-        <div className="flex gap-3 items-end glass-elevated rounded-2xl border border-white/8 p-3">
+      <div className="border-t border-white/5 bg-surface-0 px-6 pb-5 pt-4 flex-shrink-0">
+        <div className="mx-auto flex max-w-3xl gap-3 items-end rounded-xl border border-white/10 bg-surface-2 p-3 focus-within:border-primary/60 focus-within:shadow-glow-primary">
           <textarea
             ref={inputRef}
             value={input}
@@ -295,7 +299,7 @@ export default function AIAssistantPage() {
             Send
           </Button>
         </div>
-        <p className="text-center text-xs text-white/15 mt-2">Shift+Enter for new line · Enter to send</p>
+        <p className="text-center font-mono text-[11px] text-white/25 mt-2">Shift+Enter for new line · Enter to send</p>
       </div>
     </div>
   );

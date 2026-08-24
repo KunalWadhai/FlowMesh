@@ -28,8 +28,10 @@ export const env = {
   JWT_EXPIRES_IN: optionalEnv('JWT_EXPIRES_IN', '15m'),
   JWT_REFRESH_EXPIRES_IN: optionalEnv('JWT_REFRESH_EXPIRES_IN', '7d'),
 
-  // Anthropic AI
-  ANTHROPIC_API_KEY: requireEnv('ANTHROPIC_API_KEY'),
+  // NVIDIA NIM (OpenAI-compatible) AI
+  NVIDIA_API_KEY: requireEnv('NVIDIA_API_KEY'),
+  NVIDIA_BASE_URL: optionalEnv('NVIDIA_BASE_URL', 'https://integrate.api.nvidia.com/v1'),
+  NVIDIA_MODEL: optionalEnv('NVIDIA_MODEL', 'openai/gpt-oss-120b'),
 
   // CORS
   CORS_ORIGINS: optionalEnv('CORS_ORIGINS', 'http://localhost:5173').split(','),

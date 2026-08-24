@@ -18,11 +18,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading, icon, children, disabled, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-offset-transparent';
+    const base = 'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-0 focus:ring-offset-transparent';
 
     const variants = {
-      primary: 'bg-primary hover:bg-primary-light text-white shadow-glow-primary hover:shadow-glow-primary focus:ring-primary/50 active:scale-[0.97]',
-      secondary: 'glass border border-white/10 text-white/80 hover:text-white hover:border-white/20 focus:ring-white/20',
+      primary: 'bg-primary hover:bg-primary-dark text-white shadow-sm focus:ring-primary/50 active:translate-y-px',
+      secondary: 'bg-surface-1 border border-white/10 text-white/80 hover:bg-surface-2 hover:text-white hover:border-white/20 focus:ring-white/20',
       ghost: 'text-white/60 hover:text-white hover:bg-white/5 focus:ring-white/10',
       danger: 'bg-danger/20 hover:bg-danger/30 text-danger border border-danger/30 focus:ring-danger/30',
       success: 'bg-success/20 hover:bg-success/30 text-success border border-success/30 focus:ring-success/30',
@@ -104,7 +104,7 @@ export function Card({ className, elevated, glow, children, ...props }: CardProp
     <div
       className={cn(
         elevated ? 'glass-elevated' : 'glass-card',
-        'p-5',
+        'p-5 rounded-xl',
         glow && glowMap[glow],
         className
       )}
