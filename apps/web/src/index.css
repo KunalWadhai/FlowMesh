@@ -5,38 +5,38 @@
 /* ── Design Tokens ────────────────────────────────────────────────────────── */
 :root {
   /* Color Palette */
-  --color-bg: #060612;
-  --color-surface-0: #0b0b1f;
-  --color-surface-1: #10102a;
-  --color-surface-2: #161636;
+  --color-bg: #07090f;
+  --color-surface-0: #0d1018;
+  --color-surface-1: #13161f;
+  --color-surface-2: #1a1e2c;
 
-  --color-glass: rgba(255, 255, 255, 0.04);
-  --color-glass-hover: rgba(255, 255, 255, 0.07);
+  --color-glass: #13161f;
+  --color-glass-hover: #1a1e2c;
   --color-glass-border: rgba(255, 255, 255, 0.08);
-  --color-glass-border-hover: rgba(255, 255, 255, 0.15);
+  --color-glass-border-hover: rgba(255, 255, 255, 0.14);
 
-  --color-primary: #6c63ff;
-  --color-primary-light: #8b85ff;
+  --color-primary: #6366f1;
+  --color-primary-light: #818cf8;
   --color-primary-dark: #4f46e5;
-  --color-primary-glow: rgba(108, 99, 255, 0.25);
+  --color-primary-glow: rgba(99, 102, 241, 0.18);
 
-  --color-accent: #00d9ff;
-  --color-accent-glow: rgba(0, 217, 255, 0.2);
+  --color-accent: #38bdf8;
+  --color-accent-glow: rgba(56, 189, 248, 0.12);
 
-  --color-success: #00e5a0;
-  --color-success-glow: rgba(0, 229, 160, 0.2);
-  --color-warning: #ffb020;
-  --color-danger: #ff4d6d;
-  --color-danger-glow: rgba(255, 77, 109, 0.2);
+  --color-success: #10d9a8;
+  --color-success-glow: rgba(16, 217, 168, 0.12);
+  --color-warning: #fbbf24;
+  --color-danger: #f05252;
+  --color-danger-glow: rgba(240, 82, 82, 0.12);
 
-  --color-text-primary: rgba(255, 255, 255, 0.92);
-  --color-text-secondary: rgba(255, 255, 255, 0.55);
-  --color-text-muted: rgba(255, 255, 255, 0.3);
+  --color-text-primary: #f0f4ff;
+  --color-text-secondary: #8b95b0;
+  --color-text-muted: #4a5272;
 
   /* Blur */
-  --blur-sm: blur(8px);
-  --blur-md: blur(16px);
-  --blur-lg: blur(32px);
+  --blur-sm: blur(4px);
+  --blur-md: blur(8px);
+  --blur-lg: blur(16px);
 
   /* Motion */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -46,14 +46,14 @@
   --duration-slow: 400ms;
 
   /* Glow effects */
-  --glow-primary: 0 0 40px rgba(108, 99, 255, 0.3);
-  --glow-accent: 0 0 40px rgba(0, 217, 255, 0.25);
-  --glow-success: 0 0 30px rgba(0, 229, 160, 0.25);
-  --glow-danger: 0 0 30px rgba(255, 77, 109, 0.25);
+  --glow-primary: 0 0 20px rgba(99, 102, 241, 0.24), 0 0 60px rgba(99, 102, 241, 0.08);
+  --glow-accent: 0 0 16px rgba(56, 189, 248, 0.18);
+  --glow-success: 0 0 16px rgba(16, 217, 168, 0.2);
+  --glow-danger: 0 0 16px rgba(240, 82, 82, 0.2);
 
   /* Shadows */
-  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-  --shadow-elevated: 0 8px 48px rgba(0, 0, 0, 0.6);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.08);
+  --shadow-elevated: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
 }
 
 /* ── Base ─────────────────────────────────────────────────────────────────── */
@@ -61,6 +61,7 @@
 
 html {
   font-size: 16px;
+  scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -74,6 +75,10 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
 }
+
+.font-mono, code, pre, time { font-feature-settings: 'tnum' 1, 'zero' 1; }
+
+:focus-visible { outline: 2px solid rgba(99, 102, 241, 0.6); outline-offset: 2px; }
 
 /* ── Scrollbar ────────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -97,18 +102,71 @@ body::before {
 
 /* ── Gradient background ──────────────────────────────────────────────────── */
 .bg-mesh {
+  background: var(--color-bg);
+}
+
+.bg-product {
   background:
-    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(108, 99, 255, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(0, 217, 255, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(6, 6, 18, 1) 100%),
+    radial-gradient(ellipse 70% 50% at 10% -10%, rgba(108, 99, 255, 0.28) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 10%, rgba(0, 217, 255, 0.16) 0%, transparent 50%),
+    radial-gradient(ellipse 40% 30% at 70% 80%, rgba(0, 229, 160, 0.08) 0%, transparent 50%),
     var(--color-bg);
+}
+
+/* Product shell: restrained depth keeps the glow atmospheric, not distracting. */
+.app-shell {
+  background:
+    radial-gradient(ellipse 90% 58% at 50% -14%, rgba(84, 73, 225, 0.18), transparent 64%),
+    radial-gradient(ellipse 46% 42% at 96% 78%, rgba(0, 184, 223, 0.09), transparent 70%),
+    radial-gradient(ellipse 38% 35% at 2% 88%, rgba(96, 55, 184, 0.1), transparent 74%),
+    #060612;
+}
+
+.app-navbar {
+  background: linear-gradient(135deg, rgba(23, 23, 51, 0.76), rgba(12, 12, 30, 0.62));
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: 0 12px 50px rgba(0, 0, 0, 0.27), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+}
+
+.content-frame {
+  background: linear-gradient(145deg, rgba(17, 17, 42, 0.42), rgba(8, 8, 23, 0.24));
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 18px 60px rgba(0, 0, 0, 0.12);
+}
+
+.ambient-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(100px);
+  opacity: 0.45;
+}
+
+.ambient-orb-primary { width: 28rem; height: 28rem; top: -17rem; left: 18%; background: rgba(108, 99, 255, 0.34); }
+.ambient-orb-accent { width: 22rem; height: 22rem; right: -10rem; bottom: -12rem; background: rgba(0, 217, 255, 0.18); }
+
+.landing-page {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(129,140,248,0.05) 1px, transparent 0) 0 0 / 28px 28px,
+    #07090f;
+}
+
+
+@keyframes flow-dash {
+  to { stroke-dashoffset: -24; }
+}
+
+.flow-connector {
+  stroke-dasharray: 6 8;
+  animation: flow-dash 1.2s linear infinite;
 }
 
 /* ── Glass Components ─────────────────────────────────────────────────────── */
 .glass {
   background: var(--color-glass);
-  backdrop-filter: var(--blur-md);
-  -webkit-backdrop-filter: var(--blur-md);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   border: 1px solid var(--color-glass-border);
   transition: background var(--duration-normal) var(--ease-smooth),
               border-color var(--duration-normal) var(--ease-smooth);
@@ -120,16 +178,45 @@ body::before {
 }
 
 .glass-card {
-  @apply glass rounded-2xl;
+  @apply glass rounded-xl;
   box-shadow: var(--shadow-card);
 }
 
 .glass-elevated {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--color-surface-1);
   backdrop-filter: var(--blur-lg);
   -webkit-backdrop-filter: var(--blur-lg);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(240, 246, 252, 0.14);
   box-shadow: var(--shadow-elevated);
+}
+
+.workflow-canvas {
+  background-color: #090c14;
+  background-image: radial-gradient(circle, rgba(99,102,241,0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.workflow-canvas::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(7,9,15,0.45), transparent 70%), radial-gradient(ellipse 60% 40% at 50% 100%, rgba(7,9,15,0.45), transparent 70%);
+}
+
+.workflow-canvas > .react-flow { position: relative; z-index: 1; }
+
+.stat-card { position: relative; overflow: hidden; min-height: 120px; }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 42%; height: 3px; background: linear-gradient(90deg, var(--stat-accent), transparent); }
+.stat-card:hover { border-color: rgba(255,255,255,0.14); transform: translateY(-1px); box-shadow: var(--shadow-elevated); }
+.stat-card-workflow { --stat-accent: #818cf8; }
+.stat-card-exec { --stat-accent: #10d9a8; }
+.stat-card-rate { --stat-accent: #34d399; }
+.stat-card-duration { --stat-accent: #fbbf24; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 50ms !important; animation-iteration-count: 1 !important; transition-duration: 50ms !important; scroll-behavior: auto !important; }
 }
 
 /* ── Glow Utilities ───────────────────────────────────────────────────────── */
@@ -138,39 +225,46 @@ body::before {
 .glow-success { box-shadow: var(--glow-success); }
 .glow-danger { box-shadow: var(--glow-danger); }
 
-.text-glow-primary { text-shadow: 0 0 20px rgba(108, 99, 255, 0.7); }
-.text-glow-accent { text-shadow: 0 0 20px rgba(0, 217, 255, 0.7); }
+.text-glow-primary, .text-glow-accent { text-shadow: none; }
 
 /* ── Gradient Text ────────────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent));
+  background: linear-gradient(135deg, var(--color-primary-light), #79c0ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 /* ── Node Types (ReactFlow) ───────────────────────────────────────────────── */
-.node-http_request  { --node-color: #6c63ff; }
-.node-transform     { --node-color: #00d9ff; }
-.node-delay         { --node-color: #ffb020; }
-.node-condition     { --node-color: #ff6b9d; }
-.node-ai_agent      { --node-color: #00e5a0; }
-.node-log           { --node-color: #8b85ff; }
-.node-merge         { --node-color: #ff9f43; }
-.node-split         { --node-color: #a29bfe; }
+.node-http_request  { --node-color: #58a6ff; }
+.node-transform     { --node-color: #79c0ff; }
+.node-delay         { --node-color: #d29922; }
+.node-condition     { --node-color: #f85149; }
+.node-ai_agent      { --node-color: #a371f7; }
+.node-log           { --node-color: #8b949e; }
+.node-merge         { --node-color: #db6d28; }
+.node-split         { --node-color: #58a6ff; }
 
 /* ── ReactFlow overrides ──────────────────────────────────────────────────── */
 .react-flow__background { background-color: transparent !important; }
 .react-flow__pane { cursor: default !important; }
 
+/* FlowMesh renders its own node cards. Reset React Flow's built-in node skin so
+   it never paints the default white rectangle behind a custom node. */
+.react-flow__node-flowNode {
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
 .react-flow__edge-path {
-  stroke: rgba(108, 99, 255, 0.6) !important;
+  stroke: rgba(88, 166, 255, 0.6) !important;
   stroke-width: 2 !important;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
   stroke: var(--color-accent) !important;
-  filter: drop-shadow(0 0 6px var(--color-accent));
+  filter: none;
 }
 
 .react-flow__handle {

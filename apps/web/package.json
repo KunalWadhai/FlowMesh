@@ -10,7 +10,6 @@
     "lint": "eslint src --ext ts,tsx"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.36.3",
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@radix-ui/react-select": "^2.1.2",

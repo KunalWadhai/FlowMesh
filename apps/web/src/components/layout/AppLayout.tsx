@@ -30,8 +30,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const sidebarContent = (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className={cn('flex items-center gap-3 p-5 border-b border-white/5', collapsed && 'justify-center px-3')}>
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0 shadow-glow-primary">
+      <div className={cn('flex items-center gap-3 p-5 border-b border-white/8', collapsed && 'justify-center px-3')}>
+        <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-dark to-[#7c3aed] flex items-center justify-center flex-shrink-0">
           <Zap className="w-4 h-4 text-white" />
         </div>
         <AnimatePresence>
@@ -50,8 +50,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* Workspace */}
       {!collapsed && workspace && (
-        <div className="px-4 py-3 mx-3 mt-3 rounded-xl glass border border-white/5">
-          <p className="text-xs text-white/35 font-medium uppercase tracking-wider mb-0.5">Workspace</p>
+        <div className="px-4 py-3 mx-3 mt-3 rounded-xl bg-surface-1 border border-white/8">
+          <p className="font-mono text-[10px] text-white/35 font-medium uppercase tracking-[0.08em] mb-0.5">Workspace</p>
           <p className="text-sm text-white/80 font-medium truncate">{workspace.name}</p>
           <p className="text-xs text-primary/70 capitalize">{workspace.role?.toLowerCase()}</p>
         </div>
@@ -65,11 +65,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             to={to}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                'relative flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-all duration-150',
                 collapsed && 'justify-center px-2',
                 isActive
-                  ? 'bg-primary/15 text-primary-light border border-primary/20 shadow-glow-primary/50'
-                  : 'text-white/50 hover:text-white/80 hover:bg-white/5'
+                  ? 'bg-gradient-to-r from-primary/15 to-transparent text-primary-light before:absolute before:inset-y-1 before:left-0 before:w-0.5 before:rounded-full before:bg-primary'
+                  : 'text-white/50 hover:text-white/85 hover:bg-surface-2'
               )
             }
             title={collapsed ? label : undefined}
@@ -94,11 +94,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           to="/ai"
           className={({ isActive }) =>
             cn(
-              'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 mt-4',
+              'relative mt-4 flex h-9 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-all duration-150',
               collapsed && 'justify-center px-2',
               isActive
-                ? 'bg-accent/15 text-accent border border-accent/20'
-                : 'text-white/50 hover:text-white/80 hover:bg-white/5'
+                ? 'bg-gradient-to-r from-primary/15 to-transparent text-primary-light before:absolute before:inset-y-1 before:left-0 before:w-0.5 before:rounded-full before:bg-primary'
+                : 'text-white/50 hover:text-white/85 hover:bg-surface-2'
             )
           }
           title={collapsed ? 'AI Assistant' : undefined}
@@ -119,7 +119,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <button
           onClick={handleLogout}
           className={cn(
-            'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-danger/80 hover:bg-danger/5 transition-all duration-200',
+            'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/40 hover:text-danger/80 hover:bg-danger/5 transition-all duration-150',
             collapsed && 'justify-center px-2'
           )}
           title={collapsed ? 'Log out' : undefined}
@@ -151,13 +151,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <motion.aside
         animate={{ width: collapsed ? 64 : 220 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="hidden md:flex flex-col flex-shrink-0 glass border-r border-white/5 relative z-20"
+        className="hidden md:flex flex-col flex-shrink-0 bg-surface-0 border-r border-white/8 relative z-20"
       >
         {sidebarContent}
 
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full glass border border-white/10 flex items-center justify-center text-white/40 hover:text-white/80 transition-all z-30"
         >
           {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}

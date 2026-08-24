@@ -13,14 +13,14 @@ const NODE_TYPE_CONFIG: Record<string, {
   bgColor: string;
   label: string;
 }> = {
-  http_request:  { icon: Globe,     color: 'text-[#6c63ff]', bgColor: 'bg-[#6c63ff]', label: 'HTTP' },
-  transform:     { icon: Code2,     color: 'text-[#00d9ff]', bgColor: 'bg-[#00d9ff]', label: 'Transform' },
-  delay:         { icon: Timer,     color: 'text-[#ffb020]', bgColor: 'bg-[#ffb020]', label: 'Delay' },
-  condition:     { icon: GitBranch, color: 'text-[#ff6b9d]', bgColor: 'bg-[#ff6b9d]', label: 'Condition' },
-  ai_agent:      { icon: Sparkles,  color: 'text-[#00e5a0]', bgColor: 'bg-[#00e5a0]', label: 'AI Agent' },
-  log:           { icon: FileText,  color: 'text-[#8b85ff]', bgColor: 'bg-[#8b85ff]', label: 'Log' },
-  merge:         { icon: Merge,     color: 'text-[#ff9f43]', bgColor: 'bg-[#ff9f43]', label: 'Merge' },
-  split:         { icon: Split,     color: 'text-[#a29bfe]', bgColor: 'bg-[#a29bfe]', label: 'Split' },
+  http_request:  { icon: Globe,     color: 'text-[#38bdf8]', bgColor: 'bg-[#38bdf8]', label: 'HTTP' },
+  transform:     { icon: Code2,     color: 'text-[#a78bfa]', bgColor: 'bg-[#a78bfa]', label: 'Transform' },
+  delay:         { icon: Timer,     color: 'text-[#fbbf24]', bgColor: 'bg-[#fbbf24]', label: 'Delay' },
+  condition:     { icon: GitBranch, color: 'text-[#fb923c]', bgColor: 'bg-[#fb923c]', label: 'Condition' },
+  ai_agent:      { icon: Sparkles,  color: 'text-success', bgColor: 'bg-success', label: 'AI Agent' },
+  log:           { icon: FileText,  color: 'text-[#94a3b8]', bgColor: 'bg-[#94a3b8]', label: 'Log' },
+  merge:         { icon: Merge,     color: 'text-[#fb923c]', bgColor: 'bg-[#fb923c]', label: 'Merge' },
+  split:         { icon: Split,     color: 'text-primary-light', bgColor: 'bg-primary-light', label: 'Split' },
 };
 
 interface FlowNodeData extends WorkflowNode {
@@ -57,33 +57,29 @@ export const FlowNode = memo(({ id, data, selected }: NodeProps) => {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        'relative w-52 rounded-2xl transition-all duration-200 cursor-default',
-        'glass border',
-        selected
-          ? `border-[${config.bgColor.replace('bg-', '')}]/50 shadow-lg`
-          : hovered
-          ? 'border-white/15'
-          : 'border-white/6',
+        'relative w-[220px] overflow-visible rounded-[10px] border bg-surface-1 transition-all duration-200 cursor-pointer',
         execStatus in statusRing && statusRing[execStatus]
       )}
       style={{
+        borderColor: selected ? '#6366f1' : hovered ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.08)',
         boxShadow: selected
-          ? `0 0 30px ${config.bgColor.includes('6c63ff') ? 'rgba(108,99,255,0.25)' : 'rgba(0,0,0,0.3)'}`
+          ? '0 0 0 3px rgba(99,102,241,0.18)'
           : hovered
           ? '0 4px 24px rgba(0,0,0,0.3)'
           : '0 2px 12px rgba(0,0,0,0.2)',
       }}
     >
+      <div className={cn('absolute inset-x-0 top-0 h-[3px] rounded-t-[10px]', config.bgColor)} />
       {/* Input handle */}
       <Handle
         type="target"
         position={Position.Left}
         className="!w-3 !h-3 !-left-1.5 !border-2"
-        style={{ borderColor: 'rgba(255,255,255,0.2)', background: '#161636' }}
+        style={{ borderColor: 'rgba(255,255,255,0.14)', background: '#1A1E2C' }}
       />
 
       {/* Node content */}
-      <div className="p-4">
+      <div className="p-4 pt-5">
         {/* Header */}
         <div className="flex items-center gap-3 mb-3">
           <div className={cn('w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0', config.bgColor, 'bg-opacity-20')}>
@@ -99,7 +95,7 @@ export const FlowNode = memo(({ id, data, selected }: NodeProps) => {
                 )}
               />
             </div>
-            <p className={cn('text-xs mt-0.5', config.color, 'opacity-70')}>{config.label}</p>
+            <p className={cn('font-mono text-[11px] mt-0.5', config.color, 'opacity-80')}>{config.label}</p>
           </div>
         </div>
 
@@ -146,7 +142,7 @@ export const FlowNode = memo(({ id, data, selected }: NodeProps) => {
         type="source"
         position={Position.Right}
         className="!w-3 !h-3 !-right-1.5 !border-2"
-        style={{ borderColor: 'rgba(255,255,255,0.2)', background: '#161636' }}
+        style={{ borderColor: 'rgba(255,255,255,0.3)', background: '#6366f1' }}
       />
 
       {/* True/False handles for condition nodes */}
@@ -157,14 +153,14 @@ export const FlowNode = memo(({ id, data, selected }: NodeProps) => {
             position={Position.Bottom}
             id="true"
             className="!w-3 !h-3 !border-2"
-            style={{ borderColor: '#00e5a0', background: '#00e5a0', bottom: -6 }}
+            style={{ borderColor: '#10d9a8', background: '#10d9a8', bottom: -6 }}
           />
           <Handle
             type="source"
             position={Position.Bottom}
             id="false"
             className="!w-3 !h-3 !border-2"
-            style={{ borderColor: '#ff4d6d', background: '#ff4d6d', bottom: -6, left: '70%' }}
+            style={{ borderColor: '#f05252', background: '#f05252', bottom: -6, left: '70%' }}
           />
         </>
       )}

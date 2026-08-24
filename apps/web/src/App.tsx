@@ -44,6 +44,7 @@ export default function App() {
       <Routes>
         {/* Public */}
         <Route element={<PublicRoute />}>
+          <Route path="/" element={<AuthPage />} />
           <Route path="/auth" element={<AuthPage />} />
         </Route>
 
@@ -57,8 +58,7 @@ export default function App() {
         </Route>
 
         {/* Fallback */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       <Toaster

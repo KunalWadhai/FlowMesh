@@ -1,10 +1,13 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { env } from '../config/env';
 import { logger } from '../config/logger';
 import { AppError } from '../types';
 import type { WorkflowDefinition } from '../types';
 
-const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+const client = new OpenAI({
+  apiKey: env.NVIDIA_API_KEY,
+  baseURL: env.NVIDIA_BASE_URL,
+});
 
 const WORKFLOW_SYSTEM_PROMPT = `You are FlowMesh AI — an expert workflow orchestration engineer embedded inside the FlowMesh platform.
 
@@ -59,6 +62,27 @@ export interface AIOptimizeInput {
 }
 
 export class AIService {
+  private async complete(
+    messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+    maxTokens: number,
+    systemPrompt = WORKFLOW_SYSTEM_PROMPT,
+  ): Promise<{ text: string; promptTokens?: number; completionTokens?: number }> {
+    const response = await client.chat.completions.create({
+      model: env.NVIDIA_MODEL,
+      max_tokens: maxTokens,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages,
+      ],
+    });
+
+    return {
+      text: response.choices[0]?.message?.content ?? '',
+      promptTokens: response.usage?.prompt_tokens,
+      completionTokens: response.usage?.completion_tokens,
+    };
+  }
+
   async suggestWorkflow(input: AISuggestInput): Promise<{
     workflow?: WorkflowDefinition;
     explanation: string;
@@ -69,24 +93,19 @@ export class AIService {
       : `Create a workflow for: ${input.prompt}`;
 
     try {
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2048,
-        system: WORKFLOW_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: `${userMessage}\n\nRespond with JSON in this format:
+      const response = await this.complete([
+        {
+          role: 'user',
+          content: `${userMessage}\n\nRespond with JSON in this format:
 {
   "workflow": { ...WorkflowDefinition or null if just suggestions },
   "explanation": "Clear explanation of what this workflow does",
   "suggestions": ["tip 1", "tip 2", "tip 3"]
 }`,
-          },
-        ],
-      });
+        },
+      ], 2048);
 
-      const text = response.content[0].type === 'text' ? response.content[0].text : '';
+      const text = response.text;
 
       // Extract JSON from response
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -96,8 +115,8 @@ export class AIService {
 
       logger.info({
         event: 'ai_workflow_suggested',
-        promptTokens: response.usage.input_tokens,
-        outputTokens: response.usage.output_tokens,
+        promptTokens: response.promptTokens,
+        outputTokens: response.completionTokens,
       });
 
       return {
@@ -121,24 +140,19 @@ export class AIService {
       : `Analyze this workflow for issues, anti-patterns, and optimization opportunities:\n${JSON.stringify(input.workflow, null, 2)}`;
 
     try {
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        system: WORKFLOW_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: `${prompt}\n\nRespond with JSON:
+      const response = await this.complete([
+        {
+          role: 'user',
+          content: `${prompt}\n\nRespond with JSON:
 {
   "analysis": "Overall analysis paragraph",
   "issues": [{"severity": "high|medium|low", "nodeId": "node-id or null", "message": "issue description"}],
   "recommendations": ["recommendation 1", "recommendation 2"]
 }`,
-          },
-        ],
-      });
+        },
+      ], 1024);
 
-      const text = response.content[0].type === 'text' ? response.content[0].text : '';
+      const text = response.text;
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON in response');
 
@@ -159,24 +173,19 @@ export class AIService {
       : '';
 
     try {
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 2048,
-        system: WORKFLOW_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: 'user',
-            content: `Optimize this workflow for performance and reliability.${metricsContext}\n\nWorkflow:\n${JSON.stringify(input.workflow, null, 2)}\n\nRespond with JSON:
+      const response = await this.complete([
+        {
+          role: 'user',
+          content: `Optimize this workflow for performance and reliability.${metricsContext}\n\nWorkflow:\n${JSON.stringify(input.workflow, null, 2)}\n\nRespond with JSON:
 {
   "optimizedWorkflow": { ...full optimized WorkflowDefinition },
   "changes": ["change 1 description", "change 2 description"],
   "estimatedImprovementPercent": 25
 }`,
-          },
-        ],
-      });
+        },
+      ], 2048);
 
-      const text = response.content[0].type === 'text' ? response.content[0].text : '';
+      const text = response.text;
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON in response');
 
@@ -191,14 +200,8 @@ export class AIService {
 
   async chat(messages: Array<{ role: 'user' | 'assistant'; content: string }>): Promise<string> {
     try {
-      const response = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        system: WORKFLOW_SYSTEM_PROMPT,
-        messages,
-      });
-
-      return response.content[0].type === 'text' ? response.content[0].text : '';
+      const response = await this.complete(messages, 1024);
+      return response.text;
     } catch (err) {
       logger.error({ event: 'ai_chat_error', error: (err as Error).message });
       throw new AppError('AI_ERROR', 'AI chat failed', 500, err);
@@ -207,19 +210,16 @@ export class AIService {
 
   // Used inside workflow execution for AI Agent nodes
   async runAgentNode(prompt: string, inputData: unknown, systemPrompt?: string): Promise<string> {
-    const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1024,
-      system: systemPrompt ?? 'You are a helpful data processing assistant. Process the provided input and return the result.',
-      messages: [
-        {
-          role: 'user',
-          content: `Input data:\n${JSON.stringify(inputData, null, 2)}\n\nTask: ${prompt}`,
-        },
-      ],
-    });
+    const response = await this.complete(
+      [{
+        role: 'user',
+        content: `Input data:\n${JSON.stringify(inputData, null, 2)}\n\nTask: ${prompt}`,
+      }],
+      1024,
+      systemPrompt ?? 'You are a helpful data processing assistant. Process the provided input and return the result.',
+    );
 
-    return response.content[0].type === 'text' ? response.content[0].text : '';
+    return response.text;
   }
 }
 

@@ -50,7 +50,7 @@ export default function WorkflowsPage() {
           _count: { executions: 142 },
         },
         {
-          id: 'wf-2', name: 'AI Report Generator', description: 'Generate weekly reports using Claude AI',
+          id: 'wf-2', name: 'AI Report Generator', description: 'Generate weekly reports using NVIDIA AI',
           tags: ['ai', 'reports'], workspaceId: 'ws-1', status: 'ACTIVE', isActive: true, version: 1,
           definition: { nodes: [{ id: 'n1', type: 'ai_agent', label: 'Generate Report', position: { x: 0, y: 0 }, config: {} }], edges: [] },
           createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
