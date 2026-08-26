@@ -168,7 +168,7 @@ export class WorkflowService {
   }
 
   async getStats(workspaceId: string) {
-    const [total, byStatus, recentExecutions] = await prisma.$transaction([
+    const [total, byStatus, recentExecutions] = await Promise.all([
       prisma.workflow.count({ where: { workspaceId } }),
       prisma.workflow.groupBy({
         by: ['status'],
@@ -193,7 +193,7 @@ export class WorkflowService {
 
     return {
       totalWorkflows: total,
-      byStatus: Object.fromEntries(byStatus.map((s: { status: string; _count: number }) => [s.status, s._count])),
+      byStatus: Object.fromEntries(byStatus.map((s) => [s.status, s._count])),
       successRate: totalExecutions > 0 ? Math.round((successCount / totalExecutions) * 100) : 0,
       recentExecutions,
     };

@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import { logger } from '../../config/logger';
 import type { WorkflowNode, NodeRunResult } from '../../types';
 
@@ -43,7 +43,7 @@ export async function runHttpNode(
           ? interpolateObject(config.body, { ...variables, input: inputData })
           : undefined,
         timeout,
-        validateStatus: null, // Don't throw on 4xx/5xx
+        validateStatus: () => true, // Don't throw on any status
       });
 
       logs.push(`[HTTP] Response: ${response.status} ${response.statusText}`);
@@ -72,12 +72,10 @@ export async function runHttpNode(
         logs,
         durationMs: Date.now() - start,
       };
-    } catch (err) {
+    } catch (err: unknown) {
       lastError = err as Error;
-      const isAxiosError = err instanceof AxiosError;
-      const isRetryable = isAxiosError
-        ? !err.response || err.response.status >= 500
-        : true;
+      const axiosErr = err as { response?: { status: number } };
+      const isRetryable = !axiosErr.response || axiosErr.response.status >= 500;
 
       logs.push(`[HTTP] Attempt ${attempt} failed: ${lastError.message}`);
 

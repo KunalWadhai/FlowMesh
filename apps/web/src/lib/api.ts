@@ -1,5 +1,11 @@
 import axios from 'axios';
 
+interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresIn: number;
+}
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api',
   timeout: 30000,
@@ -32,7 +38,7 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        const { data } = await axios.post(
+        const { data } = await axios.post<{ data: { tokens: AuthTokens } }>(
           `${api.defaults.baseURL}/auth/refresh`,
           { refreshToken: tokens.refreshToken }
         );

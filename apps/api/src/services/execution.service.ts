@@ -148,7 +148,7 @@ export class ExecutionService {
   async getMetrics(workspaceId: string, days = 7) {
     const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-    const [byStatus, avgDuration, throughput] = await prisma.$transaction([
+    const [byStatus, avgDuration, throughput] = await Promise.all([
       prisma.execution.groupBy({
         by: ['status'],
         where: { workflow: { workspaceId }, createdAt: { gte: since } },
@@ -173,7 +173,7 @@ export class ExecutionService {
     ]);
 
     return {
-      byStatus: Object.fromEntries(byStatus.map((s: { status: string; _count: number }) => [s.status, s._count])),
+      byStatus: Object.fromEntries(byStatus.map((s) => [s.status, s._count])),
       avgDurationMs: Math.round(avgDuration._avg.durationMs ?? 0),
       topWorkflows: throughput,
     };

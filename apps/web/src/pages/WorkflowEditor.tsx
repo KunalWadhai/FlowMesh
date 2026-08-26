@@ -90,7 +90,14 @@ export default function WorkflowEditorPage() {
         })));
       })
       .catch(() => toast.error('Failed to load workflow'))
-      .finally(() => setLoading(false));
+      .then((res) => {
+        setLoading(false);
+        return res;
+      })
+      .catch((err) => {
+        setLoading(false);
+        throw err;
+      });
   }, [id, isNew]);
 
   // Real-time execution events

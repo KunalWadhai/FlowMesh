@@ -87,6 +87,7 @@ async function bootstrap() {
 
   // ─── Start Server ─────────────────────────────────────────────────────────────
   httpServer.listen(env.PORT, () => {
+    console.log(`server running on port ${env.PORT}----`)
     logger.info({
       event: 'server_started',
       port: env.PORT,
