@@ -31,15 +31,41 @@ interface Metrics {
   topWorkflows: Array<{ workflowId: string; _count: number }>;
 }
 
-const CHART_DATA = [
-  { day: 'Mon', success: 12, failed: 1 },
-  { day: 'Tue', success: 18, failed: 3 },
-  { day: 'Wed', success: 24, failed: 2 },
-  { day: 'Thu', success: 15, failed: 0 },
-  { day: 'Fri', success: 31, failed: 4 },
-  { day: 'Sat', success: 8, failed: 1 },
-  { day: 'Sun', success: 22, failed: 2 },
-];
+interface ChartDataPoint {
+  day: string;
+  date: string;
+  success: number;
+  failed: number;
+}
+
+// Generate chart data from the last 7 days
+const generateChartData = (executions: Array<{ status: string; createdAt: string }>): ChartDataPoint[] => {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const data: ChartDataPoint[] = [];
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    date.setHours(0, 0, 0, 0);
+    
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + 1);
+    
+    const dayExecutions = executions.filter(e => {
+      const execDate = new Date(e.createdAt);
+      return execDate >= date && execDate < nextDate;
+    });
+    
+    data.push({
+      day: days[date.getDay()],
+      date: date.toISOString().split('T')[0],
+      success: dayExecutions.filter(e => e.status === 'SUCCEEDED').length,
+      failed: dayExecutions.filter(e => ['FAILED', 'CANCELLED'].includes(e.status)).length,
+    });
+  }
+  
+  return data;
+};
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -51,26 +77,34 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<Stats | null>(null);
   const [metrics, setMetrics] = useState<Metrics | null>(null);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     Promise.all([
       api.get<{ data: Stats }>('/workflows/stats'),
-      api.get<{ data: Metrics }>('/executions/metrics'),
+      api.get<{ data: Metrics }>('/executions/metrics?days=7'),
+      api.get<{ data: Array<{ status: string; createdAt: string }> }>('/activity?limit=100'),
     ])
-      .then(([statsRes, metricsRes]) => {
+      .then(([statsRes, metricsRes, activityRes]) => {
         setStats(statsRes.data.data);
         setMetrics(metricsRes.data.data);
+        setChartData(generateChartData(activityRes.data.data));
+        setError(null);
       })
-      .catch(() => {
-        // Use mock data in case API isn't running
+      .catch((err) => {
+        console.error('Failed to fetch dashboard data:', err);
+        setError('Unable to load dashboard data');
+        // Set empty data instead of mock data
         setStats({
-          totalWorkflows: 12,
-          byStatus: { ACTIVE: 8, DRAFT: 3, PAUSED: 1 },
-          successRate: 94,
+          totalWorkflows: 0,
+          byStatus: {},
+          successRate: 0,
           recentExecutions: [],
         });
-        setMetrics({ byStatus: { SUCCEEDED: 142, FAILED: 9, RUNNING: 2 }, avgDurationMs: 3200, topWorkflows: [] });
+        setMetrics({ byStatus: {}, avgDurationMs: 0, topWorkflows: [] });
+        setChartData(generateChartData([]));
       })
       .finally(() => setLoading(false));
   }, []);
@@ -111,6 +145,8 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  const hasNoData = stats?.totalWorkflows === 0 && totalExecs === 0;
 
   return (
     <div className="p-6 md:p-8 space-y-8 animate-fade-in">
@@ -160,8 +196,15 @@ export default function DashboardPage() {
                 <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-danger" /> Failed</span>
               </div>
             </div>
-            <ResponsiveContainer width="100%" height={190}>
-              <AreaChart data={CHART_DATA} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            {hasNoData ? (
+              <div className="flex flex-col items-center justify-center h-[190px] text-center">
+                <Activity className="w-8 h-8 text-white/20 mb-3" />
+                <p className="text-sm text-white/40">No execution data yet</p>
+                <p className="text-xs text-white/25 mt-1">Create and run a workflow to see analytics</p>
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height={190}>
+                <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="gSuccess" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#10d9a8" stopOpacity={0.18} />
@@ -180,10 +223,11 @@ export default function DashboardPage() {
                   itemStyle={{ color: 'rgba(255,255,255,0.7)' }}
                   labelStyle={{ color: 'white', fontWeight: 600 }}
                 />
-                <Area type="monotone" dataKey="success" stroke="#10d9a8" strokeWidth={2} fill="url(#gSuccess)" animationDuration={600} />
-                <Area type="monotone" dataKey="failed" stroke="#f05252" strokeWidth={2} fill="url(#gFailed)" animationDuration={600} />
-              </AreaChart>
-            </ResponsiveContainer>
+                  <Area type="monotone" dataKey="success" stroke="#10d9a8" strokeWidth={2} fill="url(#gSuccess)" animationDuration={600} />
+                  <Area type="monotone" dataKey="failed" stroke="#f05252" strokeWidth={2} fill="url(#gFailed)" animationDuration={600} />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </Card>
         </motion.div>
 

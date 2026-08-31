@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useAuthStore } from './stores/auth.store';
 import api from './lib/api';
 import { AppLayout } from './components/layout/AppLayout';
+import HomePage from './pages/Home';
 import AuthPage from './pages/Auth';
 import DashboardPage from './pages/Dashboard';
 import WorkflowsPage from './pages/Workflows';
@@ -44,7 +45,7 @@ export default function App() {
       <Routes>
         {/* Public */}
         <Route element={<PublicRoute />}>
-          <Route path="/" element={<AuthPage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<AuthPage />} />
         </Route>
 
