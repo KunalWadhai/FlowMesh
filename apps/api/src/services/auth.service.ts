@@ -68,7 +68,7 @@ export class AuthService {
     const finalSlug = slugExists ? `${slug}-${Date.now()}` : slug;
 
     // Atomic: create user + workspace + membership
-    const result = await prisma.$transaction(async (tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const user = await tx.user.create({
         data: {
           name: input.name,
