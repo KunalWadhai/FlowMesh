@@ -33,7 +33,7 @@ async function seedDemoWorkflow() {
       process.exit(1);
     }
 
-    const owner = workspace.members.find(m => m.role === 'OWNER')?.user;
+    const owner = workspace.members.find((m: any) => m.role === 'OWNER')?.user;
     console.log(`✓ Found workspace: ${workspace.name}`);
     console.log(`✓ Owner: ${owner?.name} (${owner?.email})`);
     console.log('');
