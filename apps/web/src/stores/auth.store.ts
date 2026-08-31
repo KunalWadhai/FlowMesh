@@ -89,6 +89,12 @@ export const useAuthStore = create<AuthState>()(
         tokens: state.tokens,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Restore the Authorization header when the store is hydrated from localStorage
+        if (state?.tokens?.accessToken) {
+          api.defaults.headers.common['Authorization'] = `Bearer ${state.tokens.accessToken}`;
+        }
+      },
     }
   )
 );
