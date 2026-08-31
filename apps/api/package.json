@@ -10,7 +10,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "worker:dev": "tsx watch src/workers/execution.worker.ts"
+    "worker:dev": "tsx watch src/workers/execution.worker.ts",
+    "seed:demo": "tsx src/scripts/seed-demo-workflow.ts",
+    "create:demo-user": "tsx src/scripts/create-demo-user.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
