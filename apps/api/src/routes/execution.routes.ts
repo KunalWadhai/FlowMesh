@@ -38,6 +38,18 @@ executionRouter.post('/workflows/:workflowId/execute', async (req: Request, res:
   }
 });
 
+// GET /executions/metrics - MUST be before /executions/:id to avoid route collision
+executionRouter.get('/executions/metrics', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { workspaceId } = (req as AuthenticatedRequest).user;
+    const days = Math.min(parseInt(req.query.days as string || '7', 10), 30);
+    const metrics = await executionService.getMetrics(workspaceId, days);
+    res.json({ success: true, data: metrics });
+  } catch (err) {
+    next(err);
+  }
+});
+
 // GET /executions/:id
 executionRouter.get('/executions/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -74,18 +86,6 @@ executionRouter.post('/executions/:id/cancel', async (req: Request, res: Respons
     const { workspaceId } = (req as AuthenticatedRequest).user;
     const execution = await executionService.cancel(req.params.id as string, workspaceId);
     res.json({ success: true, data: execution });
-  } catch (err) {
-    next(err);
-  }
-});
-
-// GET /executions/metrics
-executionRouter.get('/executions/metrics', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { workspaceId } = (req as AuthenticatedRequest).user;
-    const days = Math.min(parseInt(req.query.days as string || '7', 10), 30);
-    const metrics = await executionService.getMetrics(workspaceId, days);
-    res.json({ success: true, data: metrics });
   } catch (err) {
     next(err);
   }
