@@ -60,7 +60,7 @@ async function bootstrap() {
   app.use(morgan(env.isProd() ? 'combined' : 'dev'));
 
   // ─── Health Check ─────────────────────────────────────────────────────────────
-  app.get('/health', (_req, res) => {
+  app.get('/health', (_req: express.Request, res: express.Response) => {
     res.json({
       status: 'ok',
       version: '1.0.0',

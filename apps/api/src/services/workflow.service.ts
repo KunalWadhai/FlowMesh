@@ -193,7 +193,7 @@ export class WorkflowService {
 
     return {
       totalWorkflows: total,
-      byStatus: Object.fromEntries(byStatus.map((s) => [s.status, s._count])),
+      byStatus: Object.fromEntries(byStatus.map((s: any) => [s.status, s._count])),
       successRate: totalExecutions > 0 ? Math.round((successCount / totalExecutions) * 100) : 0,
       recentExecutions,
     };

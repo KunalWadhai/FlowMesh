@@ -173,7 +173,7 @@ export class ExecutionService {
     ]);
 
     return {
-      byStatus: Object.fromEntries(byStatus.map((s) => [s.status, s._count])),
+      byStatus: Object.fromEntries(byStatus.map((s: any) => [s.status, s._count])),
       avgDurationMs: Math.round(avgDuration._avg.durationMs ?? 0),
       topWorkflows: throughput,
     };
