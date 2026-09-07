@@ -2,7 +2,7 @@
 
 **AI-Powered Distributed Workflow Orchestration Engine**
 
-FlowMesh is a production-grade platform for building, executing, and monitoring distributed workflows as Directed Acyclic Graphs (DAGs). It combines a visual workflow builder, real-time execution observability, and an integrated Claude AI co-pilot — all in a single glassmorphism-styled SaaS platform.
+FlowMesh is a production-grade platform for building, executing, and monitoring distributed workflows as Directed Acyclic Graphs (DAGs). It combines a visual workflow builder, real-time execution observability, and an integrated Nvidia OpenAI — all in a single glassmorphism-styled SaaS platform.
 
 ---
 
