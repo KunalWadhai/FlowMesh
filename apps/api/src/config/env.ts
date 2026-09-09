@@ -1,6 +1,8 @@
 import path from 'path';
 import dotenv from 'dotenv';
 
+// Load from apps/api/.env first, then fallback to root .env
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 function requireEnv(key: string): string {
@@ -31,7 +33,7 @@ export const env = {
   // NVIDIA NIM (OpenAI-compatible) AI
   NVIDIA_API_KEY: requireEnv('NVIDIA_API_KEY'),
   NVIDIA_BASE_URL: optionalEnv('NVIDIA_BASE_URL', 'https://integrate.api.nvidia.com/v1'),
-  NVIDIA_MODEL: optionalEnv('NVIDIA_MODEL', 'openai/gpt-oss-120b'),
+  NVIDIA_MODEL: optionalEnv('NVIDIA_MODEL', 'meta/muse-glimmer-30b'),
 
   // CORS
   CORS_ORIGINS: optionalEnv('CORS_ORIGINS', 'http://localhost:5173').split(','),
