@@ -67,20 +67,50 @@ export class AIService {
     maxTokens: number,
     systemPrompt = WORKFLOW_SYSTEM_PROMPT,
   ): Promise<{ text: string; promptTokens?: number; completionTokens?: number }> {
-    const response = await client.chat.completions.create({
-      model: env.NVIDIA_MODEL,
-      max_tokens: maxTokens,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        ...messages,
-      ],
-    });
+    try {
+      const response = await client.chat.completions.create({
+        model: env.NVIDIA_MODEL,
+        max_tokens: maxTokens,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...messages,
+        ],
+      });
 
-    return {
-      text: response.choices[0]?.message?.content ?? '',
-      promptTokens: response.usage?.prompt_tokens,
-      completionTokens: response.usage?.completion_tokens,
-    };
+      const choice = response.choices[0];
+      if (!choice) {
+        throw new Error('No choices in AI response');
+      }
+
+      // Handle different response formats
+      // Some models (like muse-glimmer) return reasoning_content instead of content
+      const content = (choice.message as any).reasoning_content || choice.message.content;
+      
+      if (!content) {
+        throw new Error('No content in AI response');
+      }
+
+      return {
+        text: content,
+        promptTokens: response.usage?.prompt_tokens,
+        completionTokens: response.usage?.completion_tokens,
+      };
+    } catch (err: any) {
+      // Log detailed error information
+      logger.error({
+        event: 'openai_api_error',
+        message: err.message,
+        statusCode: err.status || err.statusCode,
+        type: err.type,
+        code: err.code,
+        apiKey: env.NVIDIA_API_KEY ? `${env.NVIDIA_API_KEY.substring(0, 10)}...` : 'missing',
+        baseURL: env.NVIDIA_BASE_URL,
+        model: env.NVIDIA_MODEL,
+      });
+      
+      // Re-throw with more context
+      throw new Error(`OpenAI API error: ${err.message || 'Unknown error'}`);
+    }
   }
 
   async suggestWorkflow(input: AISuggestInput): Promise<{
@@ -203,8 +233,19 @@ export class AIService {
       const response = await this.complete(messages, 1024);
       return response.text;
     } catch (err) {
-      logger.error({ event: 'ai_chat_error', error: (err as Error).message });
-      throw new AppError('AI_ERROR', 'AI chat failed', 500, err);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      const errorDetails = err instanceof Error ? err.stack : String(err);
+      
+      logger.error({ 
+        event: 'ai_chat_error', 
+        error: errorMessage,
+        details: errorDetails,
+        apiKey: env.NVIDIA_API_KEY ? `${env.NVIDIA_API_KEY.substring(0, 10)}...` : 'missing',
+        baseURL: env.NVIDIA_BASE_URL,
+        model: env.NVIDIA_MODEL,
+      });
+      
+      throw new AppError('AI_ERROR', `AI chat failed: ${errorMessage}`, 500, { originalError: errorMessage });
     }
   }
 
